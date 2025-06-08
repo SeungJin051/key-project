@@ -253,7 +253,7 @@ def show_nutrition_analysis():
             # 돌아가기 버튼
             if st.button("과일 목록으로 돌아가기"):
                 st.session_state.selected_fruit = None
-                st.experimental_rerun()
+                st.rerun()
     else:
         # 검색 기능 (선택된 과일이 없을 때만 표시)
         st.markdown('<div class="search-container">', unsafe_allow_html=True)
@@ -332,7 +332,7 @@ def show_nutrition_analysis():
                             # 버튼
                             if st.button(f"{fruit['Name']} 상세 정보", key=f"fruit_{fruit_id}"):
                                 st.session_state.selected_fruit = fruit['Name']
-                                st.experimental_rerun()
+                                st.rerun()
                         
                         # 구분선
                         st.markdown("<hr style='border: 1px solid #f0f0f0; margin-top: 10px;'>", unsafe_allow_html=True) 

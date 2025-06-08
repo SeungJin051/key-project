@@ -154,7 +154,7 @@ def show_home():
         
         if st.button("영양 성분 분석 보기", key="nutrition"):
             st.session_state.menu = "영양 성분 분석"
-            st.experimental_rerun()
+            st.rerun()
     
     with col2:
         # 두 번째 기능 카드 - 시즌별 가격 정보 (모던 디자인)
@@ -175,7 +175,7 @@ def show_home():
         
         if st.button("가격 정보 보기", key="price"):
             st.session_state.menu = "가격 정보"
-            st.experimental_rerun()
+            st.rerun()
     
     with col3:
         # 세 번째 기능 카드 - 건강 맞춤 추천 (모던 디자인)
@@ -196,7 +196,7 @@ def show_home():
         
         if st.button("건강 추천 보기", key="recommend"):
             st.session_state.menu = "건강 추천"
-            st.experimental_rerun()
+            st.rerun()
     
     # 이달의 인기 과일 섹션
     st.markdown('<div class="seasonal-title">이달의 제철 과일</div>', unsafe_allow_html=True)
