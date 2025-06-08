@@ -327,7 +327,7 @@ def show_health_recommendations():
                 image_path = os.path.join('assets/images', f"{image_filename}.png")
                 
                 if os.path.exists(image_path):
-                    st.image(image_path, use_column_width=True)
+                    st.image(image_path, use_container_width=True)
                     st.markdown(f"<div style='text-align: center; font-weight: 600; margin-top: 0.5rem;'>{fruit}</div>", unsafe_allow_html=True)
                 else:
                     st.markdown(f"<div style='background: #f8f9fa; padding: 2rem; border-radius: 10px; text-align: center; font-weight: 600;'>{fruit}</div>", unsafe_allow_html=True)

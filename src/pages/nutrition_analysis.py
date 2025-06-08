@@ -313,7 +313,7 @@ def show_nutrition_analysis():
                             image_path = os.path.join('assets/images', f"{image_filename}.png")
                             
                             if os.path.exists(image_path):
-                                st.image(image_path, width=200, use_column_width=True)
+                                st.image(image_path, width=200, use_container_width=True)
                             else:
                                 st.info("이미지 없음")
                             
