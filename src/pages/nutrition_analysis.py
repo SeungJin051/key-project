@@ -1,9 +1,45 @@
 import streamlit as st
 import pandas as pd
 import os
-import base64
+import json
 import plotly.express as px
 from src.utils.utils import get_fruit_nutrition, get_fruit_varieties, search_fruits
+
+def load_fruit_data():
+    """data.json에서 과일 칼로리 정보를 로드합니다."""
+    try:
+        with open('static/data.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        return []
+
+def get_fruit_info(fruit_name, fruit_data):
+    """특정 과일의 모든 정보를 반환합니다."""
+    fruit_info = [item for item in fruit_data if item.get('과일명') == fruit_name]
+    if fruit_info:
+        # 첫 번째 품종의 정보 반환 (일반적으로 '일반' 품종)
+        info = fruit_info[0]
+        return {
+            'calories': info.get('칼로리 (kcal/100g)', '정보 없음'),
+            'sweetness': info.get('당도 (°Brix)', '정보 없음'),
+            'origin': info.get('주요 원산지', '정보 없음'),
+            'season': info.get('재배 시기', '정보 없음')
+        }
+    return {
+        'calories': '정보 없음',
+        'sweetness': '정보 없음', 
+        'origin': '정보 없음',
+        'season': '정보 없음'
+    }
+
+def get_fruit_calories(fruit_name, fruit_data):
+    """특정 과일의 칼로리 정보를 반환합니다."""
+    fruit_info = [item for item in fruit_data if item.get('과일명') == fruit_name]
+    if fruit_info:
+        # 첫 번째 품종의 칼로리 정보 반환 (일반적으로 '일반' 품종)
+        return fruit_info[0].get('칼로리 (kcal/100g)', '정보 없음')
+    return '정보 없음'
 
 def show_nutrition_analysis():
     # CSS 스타일 추가
@@ -19,6 +55,9 @@ def show_nutrition_analysis():
     
     st.markdown('<div class="title">영양 성분 분석</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitle">다양한 과일의 영양 성분을 확인하고 비교해보세요</div>', unsafe_allow_html=True)
+    
+    # 과일 칼로리 데이터 로드
+    fruit_data = load_fruit_data()
     
     # 영양 성분 데이터 가져오기
     fruits = get_fruit_nutrition()
@@ -40,6 +79,9 @@ def show_nutrition_analysis():
         if not fruit_varieties_df.empty:
             # 과일 이름과 대표 이미지 (첫 번째 품종의 이미지 사용)
             first_variety = fruit_varieties_df.iloc[0]
+            
+            # 과일 정보 가져오기
+            fruit_info = get_fruit_info(first_variety['Name'], fruit_data)
             
             # 나무위키 스타일 상세 페이지
             st.markdown(f"""
@@ -95,6 +137,22 @@ def show_nutrition_analysis():
                 """, unsafe_allow_html=True)
                 
                 st.markdown(f"""
+                        <tr>
+                            <th>칼로리</th>
+                            <td>{fruit_info['calories']} kcal/100g</td>
+                        </tr>
+                        <tr>
+                            <th>당도</th>
+                            <td>{fruit_info['sweetness']} °Brix</td>
+                        </tr>
+                        <tr>
+                            <th>주요 원산지</th>
+                            <td>{fruit_info['origin']}</td>
+                        </tr>
+                        <tr>
+                            <th>재배 시기</th>
+                            <td>{fruit_info['season']}</td>
+                        </tr>
                         <tr>
                             <th>평균 가격</th>
                             <td>{fruit_varieties_df['coupang_price'].mean():.0f}원/100g</td>
@@ -229,8 +287,6 @@ def show_nutrition_analysis():
                 # 컬럼 생성
                 cols = st.columns(cols_per_row)
                 
-                 
-                 
                 # 각 컬럼에 과일 카드 배치
                 for j, (_, fruit) in enumerate(row_fruits.iterrows()):
                     with cols[j]:
@@ -261,31 +317,17 @@ def show_nutrition_analysis():
                             else:
                                 st.info("이미지 없음")
                             
-                            # 과일 정보 표시 (새로운 스키마에 맞게)
+                            # 과일 정보 표시
+                            fruit_info = get_fruit_info(fruit['Name'], fruit_data)
+                            st.write(f"🔥 **칼로리:** {fruit_info['calories']} kcal/100g")
+                            st.write(f"🍯 **당도:** {fruit_info['sweetness']} °Brix")
+                            
                             if fruit['coupang_price'] and fruit['coupang_price'] > 0:
                                 st.write(f"💰 **가격:** {fruit['coupang_price']}원/100g")
                             else:
                                 st.write(f"💰 **가격:** 정보 없음")
                             
                             st.write(f"🏷️ **품종:** {fruit['Kind']}")
-                            st.write(f"🛒 **판매처:** 쿠팡")
-                            
-                            # 기본 영양 정보 (하드코딩)
-                            basic_info = {
-                                '사과': {'calories': '52', 'benefits': '비타민C, 식이섬유 풍부'},
-                                '배': {'calories': '44', 'benefits': '수분 많음, 소화 도움'},
-                                '복숭아': {'calories': '51', 'benefits': '비타민A, 항산화 성분'},
-                                '포도': {'calories': '69', 'benefits': '항산화 성분, 혈관 건강'},
-                                '망고': {'calories': '60', 'benefits': '비타민A, 베타카로틴'},
-                                '키위': {'calories': '61', 'benefits': '비타민C 매우 풍부'},
-                                '바나나': {'calories': '89', 'benefits': '칼륨, 에너지 공급'},
-                                '딸기': {'calories': '32', 'benefits': '비타민C, 엽산'}
-                            }
-                            
-                            if fruit['Name'] in basic_info:
-                                info = basic_info[fruit['Name']]
-                                st.write(f"🔥 **칼로리:** {info['calories']} kcal/100g")
-                                st.write(f"✨ **주요 효능:** {info['benefits']}")
                             
                             # 버튼
                             if st.button(f"{fruit['Name']} 상세 정보", key=f"fruit_{fruit_id}"):
